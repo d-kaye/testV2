@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Side-by-Side Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.4.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.4.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        #map-container {
+            display: flex;
+            height: 100vh;
+        }
+        #map-left,
+        #map-right {
+            flex: 1;
+            height: 100%;
+        }
+        #pane {
+            flex: 0.3;
+            height: 100%;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+        }
+        #title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id='title'>Side-by-Side Map</div>
+<div id='map-container'>
+    <div id='map-left'></div>
+    <div id='map-right'></div>
+    <div id='pane'>
+        <h2>Map Options</h2>
+        <form>
+            <label>
+                <input type='checkbox' name='traffic' id='traffic' />
+                Show Traffic
+            </label>
+        </form>
+    </div>
+</div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGtheWUiLCJhIjoiY2xmZGg5bzE4MDMzdDNxcGRsc3Z2Z2sxYyJ9.GQFt20lJx9AMA2HprZHN5A';
+    const leftMap = new mapboxgl.Map({
+        container: 'map-left',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-122.4194, 37.7749],
+        zoom: 12
+    });
+    const rightMap = new mapboxgl.Map({
+        container: 'map-right',
+        style: 'mapbox://styles/mapbox/satellite-streets-v11',
+        center: [-122.4194, 37.7749],
+        zoom: 12
+    });
+    const showTraffic = document.getElementById('traffic');
+    showTraffic.addEventListener('change', () => {
+        if (showTraffic.checked) {
+            leftMap.addSource('traffic', {
+                type: 'vector',
+                url: 'mapbox://mapbox.mapbox-traffic-v1'
+            });
+            leftMap.addLayer({
+                'id': 'traffic-layer',
+                'type': 'line',
+                'source': 'traffic',
+                'source-layer': 'traffic',
+                'paint': {
+                    'line-color': '#ff0000',
+                    'line-width': 2
+                }
+            });
+            rightMap.addSource('traffic', {
+                type: 'vector',
+                url: 'mapbox://mapbox.mapbox-traffic-v1'
+            });
+            rightMap.addLayer({
+                'id': 'traffic-layer',
+                'type': 'line',
+                'source': 'traffic',
+                'source-layer': 'traffic',
+                'paint': {
+                    'line-color': '#ff0000',
+                    'line-width': 2
+                }
+            });
+        } else {
+            leftMap.removeLayer('traffic-layer');
+            leftMap.removeSource('traffic');
+            rightMap.removeLayer('traffic-layer');
+            rightMap.removeSource('traffic');
+        }
+    });
+</script>
+
+</body>
+
+</html>
